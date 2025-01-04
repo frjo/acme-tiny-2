@@ -8,7 +8,7 @@ from io import StringIO
 from subprocess import PIPE, Popen
 from urllib.request import Request, urlopen
 
-import acme_tiny
+import acme_tiny_2 as acme_tiny
 
 from . import utils
 
