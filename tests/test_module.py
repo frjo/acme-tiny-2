@@ -13,8 +13,8 @@ import acme_tiny
 from . import utils
 
 # test settings based on environmental variables
-PEBBLE_BIN = os.getenv("ACME_TINY_PEBBLE_BIN") or "{}/go/bin/pebble".format(
-    os.getenv("HOME")
+PEBBLE_BIN = os.getenv("ACME_TINY_PEBBLE_BIN") or "{}/bin/pebble".format(
+    os.getenv("GOPATH")
 )  # default pebble install path
 DOMAIN = (
     os.getenv("ACME_TINY_DOMAIN") or "local.gethttpsforfree.com"
