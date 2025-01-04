@@ -1,7 +1,7 @@
 # acme-tiny-2
 
-[![Tests](https://github.com/diafygi/acme-tiny/actions/workflows/full-tests-with-coverage.yml/badge.svg)](https://github.com/diafygi/acme-tiny/actions/workflows/full-tests-with-coverage.yml)
-[![Coverage Status](https://coveralls.io/repos/github/diafygi/acme-tiny/badge.svg?branch=master)](https://coveralls.io/github/diafygi/acme-tiny?branch=master)
+[![ACME Tiny tests](https://github.com/frjo/acme-tiny-2/actions/workflows/full-tests.yml/badge.svg)](https://github.com/frjo/acme-tiny-2/actions/workflows/full-tests.yml)
+
 
 **This is a fork of [diafygi/acme-tiny](https://github.com/diafygi/acme-tiny).**
 
