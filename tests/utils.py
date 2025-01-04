@@ -78,11 +78,7 @@ def gen_keys(domain):
     invalid_csr = NamedTemporaryFile()
     invalid_conf = NamedTemporaryFile()
     invalid_conf.write(openssl_cnf)
-    invalid_conf.write(
-        "\n[SAN]\nsubjectAltName=DNS:\xc3\xa0\xc2\xb2\xc2\xa0_\xc3\xa0\xc2\xb2\xc2\xa0.com\n".encode(
-            "utf8"
-        )
-    )
+    invalid_conf.write("\n[SAN]\nsubjectAltName=DNS:\xc3\xa0\xc2\xb2\xc2\xa0_\xc3\xa0\xc2\xb2\xc2\xa0.com\n".encode("utf8"))
     invalid_conf.seek(0)
     Popen(
         [
@@ -107,9 +103,7 @@ def gen_keys(domain):
     nonexistent_csr = NamedTemporaryFile()
     nonexistent_conf = NamedTemporaryFile()
     nonexistent_conf.write(openssl_cnf)
-    nonexistent_conf.write(
-        "\n[SAN]\nsubjectAltName=DNS:404.gethttpsforfree.com\n".encode("utf8")
-    )
+    nonexistent_conf.write("\n[SAN]\nsubjectAltName=DNS:404.gethttpsforfree.com\n".encode("utf8"))
     nonexistent_conf.seek(0)
     Popen(
         [
@@ -134,9 +128,7 @@ def gen_keys(domain):
     account_csr = NamedTemporaryFile()
     account_conf = NamedTemporaryFile()
     account_conf.write(openssl_cnf)
-    account_conf.write(
-        "\n[SAN]\nsubjectAltName=DNS:{0}\n".format(domain).encode("utf8")
-    )
+    account_conf.write("\n[SAN]\nsubjectAltName=DNS:{0}\n".format(domain).encode("utf8"))
     account_conf.seek(0)
     Popen(
         [
@@ -269,15 +261,11 @@ def setup_pebble(pebble_bin_path, bad_nonces=0):
     """Start a pebble server and challenge file server"""
 
     # make testing cert temp files
-    pebble_crt = NamedTemporaryFile(
-        delete=False
-    )  # keep until manually cleaned up in tearDown
+    pebble_crt = NamedTemporaryFile(delete=False)  # keep until manually cleaned up in tearDown
     pebble_crt.write(PEBBLE_CERT.encode("utf8"))
     pebble_crt.flush()
 
-    pebble_key = NamedTemporaryFile(
-        delete=False
-    )  # keep until manually cleaned up in tearDown
+    pebble_key = NamedTemporaryFile(delete=False)  # keep until manually cleaned up in tearDown
     pebble_key.write(PEBBLE_CERT_KEY.encode("utf8"))
     pebble_key.flush()
 
@@ -295,9 +283,7 @@ def setup_pebble(pebble_bin_path, bad_nonces=0):
         }
     }
     pebble_conf_file = NamedTemporaryFile()
-    pebble_conf_file.write(
-        json.dumps(pebble_config, indent=4, sort_keys=True).encode("utf8")
-    )
+    pebble_conf_file.write(json.dumps(pebble_config, indent=4, sort_keys=True).encode("utf8"))
     pebble_conf_file.flush()
 
     # start the pebble server
@@ -359,9 +345,7 @@ def setup_local_fileserver(test_port, pebble_proc=None):
     MAX_WAIT = 10  # 10 seconds
     while (time.time() - wait_start) < MAX_WAIT:
         try:
-            resp = urlopen(
-                "http://localhost:{}/.well-known/acme-challenge/a.txt".format(test_port)
-            )
+            resp = urlopen("http://localhost:{}/.well-known/acme-challenge/a.txt".format(test_port))
             if resp.getcode() == 200 and resp.read() == testchallenge_text:
                 os.remove(testchallenge_path)
                 break  # done!

@@ -13,16 +13,10 @@ import acme_tiny_2 as acme_tiny
 from . import utils
 
 # test settings based on environmental variables
-PEBBLE_BIN = os.getenv("ACME_TINY_PEBBLE_BIN") or "{}/bin/pebble".format(
-    os.getenv("GOPATH")
-)  # default pebble install path
-DOMAIN = (
-    os.getenv("ACME_TINY_DOMAIN") or "local.gethttpsforfree.com"
-)  # default to domain that resolves to 127.0.0.1
+PEBBLE_BIN = os.getenv("ACME_TINY_PEBBLE_BIN") or "{}/bin/pebble".format(os.getenv("GOPATH"))  # default pebble install path
+DOMAIN = os.getenv("ACME_TINY_DOMAIN") or "local.gethttpsforfree.com"  # default to domain that resolves to 127.0.0.1
 USE_STAGING = bool(os.getenv("ACME_TINY_USE_STAGING"))  # default to false
-SSHFS_CHALLENGE_DIR = os.getenv(
-    "ACME_TINY_SSHFS_CHALLENGE_DIR"
-)  # default to None (only used if USE_STAGING is True)
+SSHFS_CHALLENGE_DIR = os.getenv("ACME_TINY_SSHFS_CHALLENGE_DIR")  # default to None (only used if USE_STAGING is True)
 
 
 class TestModule(unittest.TestCase):
@@ -45,9 +39,7 @@ class TestModule(unittest.TestCase):
             self.check_port = "80"
             self.DIR_URL = "https://acme-staging-v02.api.letsencrypt.org/directory"
             # staging server errors
-            self.account_key_error = (
-                "certificate public key must be different than account key"
-            )
+            self.account_key_error = "certificate public key must be different than account key"
             self.ca_issued_string = "(STAGING) Let's Encrypt"
             self.bad_character_error = "Domain name contains an invalid character"
 
@@ -58,11 +50,7 @@ class TestModule(unittest.TestCase):
             self.DIR_URL = "https://localhost:14000/dir"
             self._pebble_server, self._pebble_config = utils.setup_pebble(PEBBLE_BIN)
             self.check_port = str(self._pebble_config["pebble"]["httpPort"])
-            self._challenge_file_server, self._base_tempdir, self.tempdir = (
-                utils.setup_local_fileserver(
-                    self.check_port, pebble_proc=self._pebble_server
-                )
-            )
+            self._challenge_file_server, self._base_tempdir, self.tempdir = utils.setup_local_fileserver(self.check_port, pebble_proc=self._pebble_server)
             # pebble server errors
             self.account_key_error = "CSR contains a public key for a known account"
             self.ca_issued_string = "Pebble Intermediate CA"
@@ -86,12 +74,8 @@ class TestModule(unittest.TestCase):
     def test_module_linecount(self):
         """This project is supposed to remain under 250 lines"""
         test_dir = os.path.dirname(os.path.realpath(__file__))
-        module_path = os.path.abspath(
-            os.path.join(test_dir, os.pardir, "acme_tiny_2.py")
-        )
-        out, err = Popen(
-            ["wc", "-l", module_path], stdout=PIPE, stderr=PIPE
-        ).communicate()
+        module_path = os.path.abspath(os.path.join(test_dir, os.pardir, "acme_tiny_2.py"))
+        out, err = Popen(["wc", "-l", module_path], stdout=PIPE, stderr=PIPE).communicate()
         num_lines = int(out.decode("utf8").split(" ", 1)[0])
         self.assertTrue(num_lines <= 250)
 
@@ -116,9 +100,7 @@ class TestModule(unittest.TestCase):
         sys.stdout.seek(0)
         crt = sys.stdout.read().encode("utf8")
         sys.stdout = old_stdout
-        out, err = Popen(
-            ["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE
-        ).communicate(crt)
+        out, err = Popen(["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(crt)
         self.assertIn(self.ca_issued_string, out.decode("utf8"))
 
     def test_skip_valid_authorizations(self):
@@ -183,9 +165,7 @@ class TestModule(unittest.TestCase):
             stdout=PIPE,
             stderr=PIPE,
         ).communicate()
-        out, err = Popen(
-            ["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE
-        ).communicate(crt)
+        out, err = Popen(["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(crt)
         self.assertIn(self.ca_issued_string, out.decode("utf8"))
 
     def test_missing_account_key(self):
@@ -330,16 +310,12 @@ class TestModule(unittest.TestCase):
         log_output.seek(0)
         log_string = log_output.read().encode("utf8")
         # make sure the certificate was issued and the contact details were updated
-        out, err = Popen(
-            ["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE
-        ).communicate(crt)
+        out, err = Popen(["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(crt)
         self.assertIn(self.ca_issued_string, out.decode("utf8"))
         self.assertTrue(
             (  # can be in either order
-                "Updated contact details:\nmailto:devteam@gethttpsforfree.com\nmailto:boss@gethttpsforfree.com"
-                in log_string.decode("utf8")
-                or "Updated contact details:\nmailto:boss@gethttpsforfree.com\nmailto:devteam@gethttpsforfree.com"
-                in log_string.decode("utf8")
+                "Updated contact details:\nmailto:devteam@gethttpsforfree.com\nmailto:boss@gethttpsforfree.com" in log_string.decode("utf8")
+                or "Updated contact details:\nmailto:boss@gethttpsforfree.com\nmailto:devteam@gethttpsforfree.com" in log_string.decode("utf8")
             )
         )
         # remove logging capture
@@ -355,11 +331,7 @@ class TestModule(unittest.TestCase):
             # modify valid challenges and authorizations to invalid
             try:
                 resp_json = json.loads(resp._orig_read.decode("utf8"))
-                if (
-                    len(resp_json.get("challenges", [])) == 1
-                    and resp_json["challenges"][0]["status"] == "valid"
-                    and resp_json["status"] == "valid"
-                ):
+                if len(resp_json.get("challenges", [])) == 1 and resp_json["challenges"][0]["status"] == "valid" and resp_json["status"] == "valid":
                     resp_json["challenges"][0]["status"] = "invalid"
                     resp_json["status"] = "invalid"
                     resp._orig_read = json.dumps(resp_json).encode("utf8")
@@ -411,19 +383,8 @@ class TestModule(unittest.TestCase):
             resp._orig_read = resp.read()
             try:
                 resp_json = json.loads(resp._orig_read.decode("utf8"))
-                if (
-                    len(
-                        [
-                            c
-                            for c in resp_json.get("challenges", [])
-                            if c["type"] == "http-01"
-                        ]
-                    )
-                    == 1
-                ):
-                    challenge = [
-                        c for c in resp_json["challenges"] if c["type"] == "http-01"
-                    ][0]
+                if len([c for c in resp_json.get("challenges", []) if c["type"] == "http-01"]) == 1:
+                    challenge = [c for c in resp_json["challenges"] if c["type"] == "http-01"][0]
                     challenge["token"] = malicious_token
                     resp._orig_read = json.dumps(resp_json).encode("utf8")
             except ValueError:
@@ -462,13 +423,7 @@ class TestModule(unittest.TestCase):
         self.assertIn("Challenge did not pass for", result.args[0])
 
         # challenge file actually saved as a cleaned version
-        resp = urlopen(
-            Request(
-                "http://{0}:{1}/.well-known/acme-challenge/{2}".format(
-                    DOMAIN, self.check_port, cleaned_token
-                )
-            )
-        )
+        resp = urlopen(Request("http://{0}:{1}/.well-known/acme-challenge/{2}".format(DOMAIN, self.check_port, cleaned_token)))
         token_data = resp.read().decode("utf8")
         self.assertIn(cleaned_token, token_data)
 
@@ -482,10 +437,7 @@ class TestModule(unittest.TestCase):
             # modify valid orders to invalid
             try:
                 resp_json = json.loads(resp._orig_read.decode("utf8"))
-                if (
-                    resp_json.get("finalize", None) is not None
-                    and resp_json.get("status", None) == "valid"
-                ):
+                if resp_json.get("finalize", None) is not None and resp_json.get("status", None) == "valid":
                     resp_json["status"] = "invalid"
                     resp._orig_read = json.dumps(resp_json).encode("utf8")
             except ValueError:
@@ -539,9 +491,7 @@ class TestModule(unittest.TestCase):
         os.remove(self._pebble_config["pebble"]["certificate"])
         os.remove(self._pebble_config["pebble"]["privateKey"])
         # restart with new bad nonce rate
-        self._pebble_server, self._pebble_config = utils.setup_pebble(
-            PEBBLE_BIN, bad_nonces=90
-        )
+        self._pebble_server, self._pebble_config = utils.setup_pebble(PEBBLE_BIN, bad_nonces=90)
         # normal success test
         self.test_success_domain()
 
@@ -599,9 +549,7 @@ class TestModule(unittest.TestCase):
         sys.stdout.seek(0)
         crt = sys.stdout.read().encode("utf8")
         sys.stdout = old_stdout
-        out, err = Popen(
-            ["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE
-        ).communicate(crt)
+        out, err = Popen(["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(crt)
         self.assertIn(self.ca_issued_string, out.decode("utf8"))
 
     @unittest.skipIf(
