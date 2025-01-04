@@ -47,6 +47,8 @@ default-groups = ["dev", "test"]
 parallel = true
 
 # https://github.com/charliermarsh/ruff#ruff
+[tool.ruff]
+line-length = 200
 [tool.ruff.lint]
 ignore = [
     "E501", # line too long
