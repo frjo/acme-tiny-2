@@ -73,8 +73,8 @@ jobs:
       - name: Run tests with coverage
         run: |
           export PEBBLE_BIN=$(go env GOPATH)/bin/pebble
-          coverage run --source . -m unittest tests
+          uv run coverage run --source . -m unittest tests
 
       - name: Print coverage report
-        run: coverage report -m
+        run: uv run coverage report -m
 
