@@ -295,7 +295,7 @@ def main(argv=None):
             It will need to be run on your server and have access to your private account key, so PLEASE READ THROUGH IT!
             It's only ~200 lines, so it won't take long.
 
-            Example Usage: python acme_tiny.py --account-key ./account.key --csr ./domain.csr --acme-dir /usr/share/nginx/html/.well-known/acme-challenge/ > signed_chain.crt
+            Example Usage: python acme_tiny_2.py --account-key ./account.key --csr ./domain.csr --acme-dir /usr/share/nginx/html/.well-known/acme-challenge/ > signed_chain.crt
             """),
     )
     parser.add_argument(

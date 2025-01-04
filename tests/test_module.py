@@ -27,7 +27,7 @@ SSHFS_CHALLENGE_DIR = os.getenv(
 
 class TestModule(unittest.TestCase):
     """
-    Tests for acme_tiny.py functionality itself
+    Tests for acme_tiny_2.py functionality itself
     """
 
     def setUp(self):
@@ -86,7 +86,9 @@ class TestModule(unittest.TestCase):
     def test_module_linecount(self):
         """This project is supposed to remain under 250 lines"""
         test_dir = os.path.dirname(os.path.realpath(__file__))
-        module_path = os.path.abspath(os.path.join(test_dir, os.pardir, "acme_tiny.py"))
+        module_path = os.path.abspath(
+            os.path.join(test_dir, os.pardir, "acme_tiny_2.py")
+        )
         out, err = Popen(
             ["wc", "-l", module_path], stdout=PIPE, stderr=PIPE
         ).communicate()
@@ -166,7 +168,7 @@ class TestModule(unittest.TestCase):
         crt, err = Popen(
             [
                 "python",
-                "acme_tiny.py",
+                "acme_tiny_2.py",
                 "--account-key",
                 self.KEYS["account_key"].name,
                 "--csr",
