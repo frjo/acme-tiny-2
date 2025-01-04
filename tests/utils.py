@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 import time
 from subprocess import Popen
 from tempfile import NamedTemporaryFile, mkdtemp
@@ -329,7 +328,7 @@ def setup_local_fileserver(test_port, pebble_proc=None):
         [
             "python",
             "-m",
-            "SimpleHTTPServer" if sys.version_info.major == 2 else "http.server",
+            "http.server",
             test_port,
         ],
         cwd=base_tempdir,

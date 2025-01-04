@@ -188,7 +188,7 @@ class TestModule(unittest.TestCase):
         except Exception as e:
             result = e
         self.assertIsInstance(result, IOError)
-        self.assertIn("unable to load Private Key", result.args[0])
+        self.assertIn("Could not open file or uri for loading private key", result.args[0])
 
     def test_missing_csr(self):
         """OpenSSL throws an error when the CSR is missing"""
