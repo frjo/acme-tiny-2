@@ -1,5 +1,13 @@
-name: Pull Request Tests
-on: [pull_request]
+name: Pull request tests
+on:
+  pull_request:
+    branches:
+      - main
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   test:
     name: Run tests
@@ -52,11 +60,16 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          enable-cache: true
+          cache-dependency-glob: "uv.lock"
+
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
-          pip install virtualenv
-          pip install -U -r tests/requirements.txt
+          uv venv
+          uv sync --frozen
 
       - name: Run tests with coverage
         run: |
