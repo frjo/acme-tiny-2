@@ -52,7 +52,7 @@ jobs:
       - name: Setup pebble
         run: |
             export PATH=$PATH:$(go env GOPATH)/bin
-            go install github.com/letsencrypt/pebble/...@LATEST
+            go install github.com/letsencrypt/pebble/...@HEAD
             pebble -h || true
 
       - name: Setup python ${{ matrix.python-version }}
