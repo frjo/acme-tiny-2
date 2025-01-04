@@ -6,22 +6,23 @@ Testing acme-tiny-2 requires a bit of setup since it needs to interact with a lo
 
 In the default test setup, we use [pebble](https://github.com/letsencrypt/pebble) as the mock Let's Encrypt CA server on your local computer. So you need to install that before running the test suite.
 
-1. Install the Let's Encrypt test server: `pebble` (instructions below are for Ubuntu 20.04, adjust as needed)
+1. Install the Let's Encrypt test server: `pebble` (instructions below are for Ubuntu/Debian, adjust as needed)
   * `sudo apt install golang`
   * `go get -u github.com/letsencrypt/pebble/...`
   * `cd ~/go/src/github.com/letsencrypt/pebble && go install ./...`
   * `~/go/bin/pebble -h` (should print out pebble usage help)
 2. Setup a virtual environment for python:
+  * [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
   * `uv venv` (creates the virtualenv)
   * `source .venv/bin/activate` (starts using the virtualenv)
 3. Install `acme-tiny-2` test dependencies:
   * `cd /path/to/acme-tiny-2`
-  * `uv sync`
+  * `uv sync --frozen`
 4. Run the test suite on your local.
   * `cd /path/to/acme-tiny-2`
   * `unset ACME_TINY_USE_STAGING` (optional, if set previously to use staging)
   * `unset ACME_TINY_DOMAIN` (optional, if set previously to use staging)
-  * `export ACME_TINY_PEBBLE_BIN="..."` (optional, if different from `"$HOME/go/bin/pebble"`)
+  * `export ACME_TINY_PEBBLE_BIN="..."` (optional, if different from `"$GOPATH/bin/pebble"`)
   * `coverage erase` (removes any previous coverage data files)
   * `coverage run --source . -m unittest tests` (runs the test suite)
   * `coverage report -m` (optional, prints out coverage summary in console)
@@ -41,11 +42,12 @@ We also allow running the test suite against the official Let's Encrypt [staging
   * `sudo apt install sshfs` (if not already done, install sshfs)
   * `sshfs ubuntu@test.mydomain.com:/tmp/testfiles/.well-known/acme-challenge /tmp/challenge-files`
 3. Setup a virtual environment for python:
-  * `virtualenv -p python3 /tmp/venv` (creates the virtualenv)
-  * `source /tmp/venv/bin/activate` (starts using the virtualenv)
+  * [Install uv](https://docs.astral.sh/uv/getting-started/installation/)
+  * `uv venv` (creates the virtualenv)
+  * `source .venv/bin/activate` (starts using the virtualenv)
 4. Install `acme-tiny-2` test dependencies:
   * `cd /path/to/acme-tiny-2`
-  * `pip install -U -r tests/requirements.txt`
+  * `uv sync --frozen`
 5. Run the test suite on your local.
   * `cd /path/to/acme-tiny-2`
   * `export ACME_TINY_USE_STAGING="1"`
