@@ -51,11 +51,10 @@ jobs:
       - name: Setup pebble
         run: |
             export PATH=$PATH:$(go env GOPATH)/bin
-            go get -u github.com/letsencrypt/pebble/...
-            cd $GOPATH/src/github.com/letsencrypt/pebble && go install ./...
+            go install github.com/letsencrypt/pebble/...@LATEST
             pebble -h || true
 
-      - name: Setup python
+      - name: Setup python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}

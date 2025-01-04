@@ -1,6 +1,6 @@
-# How to test acme-tiny
+# How to test acme-tiny-2
 
-Testing acme-tiny requires a bit of setup since it needs to interact with a local Let's Encrypt CA test server. This readme explains how to set up your local environment so you can run `acme-tiny` tests yourself.
+Testing acme-tiny-2 requires a bit of setup since it needs to interact with a local Let's Encrypt CA test server. This readme explains how to set up your local environment so you can run `acme-tiny-2` tests yourself.
 
 ## Setup instructions (default)
 
@@ -12,18 +12,18 @@ In the default test setup, we use [pebble](https://github.com/letsencrypt/pebble
   * `cd ~/go/src/github.com/letsencrypt/pebble && go install ./...`
   * `~/go/bin/pebble -h` (should print out pebble usage help)
 2. Setup a virtual environment for python:
-  * `virtualenv -p python3 /tmp/venv` (creates the virtualenv)
-  * `source /tmp/venv/bin/activate` (starts using the virtualenv)
-3. Install `acme-tiny` test dependencies:
-  * `cd /path/to/acme-tiny`
-  * `pip install -U -r tests/requirements.txt`
+  * `uv venv` (creates the virtualenv)
+  * `source .venv/bin/activate` (starts using the virtualenv)
+3. Install `acme-tiny-2` test dependencies:
+  * `cd /path/to/acme-tiny-2`
+  * `uv sync`
 4. Run the test suite on your local.
-  * `cd /path/to/acme-tiny`
+  * `cd /path/to/acme-tiny-2`
   * `unset ACME_TINY_USE_STAGING` (optional, if set previously to use staging)
   * `unset ACME_TINY_DOMAIN` (optional, if set previously to use staging)
   * `export ACME_TINY_PEBBLE_BIN="..."` (optional, if different from `"$HOME/go/bin/pebble"`)
   * `coverage erase` (removes any previous coverage data files)
-  * `coverage run --source . --omit ./setup.py -m unittest tests` (runs the test suite)
+  * `coverage run --source . -m unittest tests` (runs the test suite)
   * `coverage report -m` (optional, prints out coverage summary in console)
   * `coverage html` (optional, generates html coverage report you can browse at `htmlcov/index.html`)
 
@@ -43,16 +43,16 @@ We also allow running the test suite against the official Let's Encrypt [staging
 3. Setup a virtual environment for python:
   * `virtualenv -p python3 /tmp/venv` (creates the virtualenv)
   * `source /tmp/venv/bin/activate` (starts using the virtualenv)
-4. Install `acme-tiny` test dependencies:
-  * `cd /path/to/acme-tiny`
+4. Install `acme-tiny-2` test dependencies:
+  * `cd /path/to/acme-tiny-2`
   * `pip install -U -r tests/requirements.txt`
 5. Run the test suite on your local.
-  * `cd /path/to/acme-tiny`
+  * `cd /path/to/acme-tiny-2`
   * `export ACME_TINY_USE_STAGING="1"`
   * `export ACME_TINY_DOMAIN="test.mydomain.com"`
   * `export ACME_TINY_SSHFS_CHALLENGE_DIR="/tmp/challenge-files"`
   * `coverage erase` (removes any previous coverage data files)
-  * `coverage run --source . --omit ./setup.py -m unittest tests` (runs the test suite)
+  * `coverage run --source . -m unittest tests` (runs the test suite)
   * `coverage report -m` (optional, prints out coverage summary in console)
   * `coverage html` (optional, generates html coverage report you can browse at `htmlcov/index.html`)
 6. When done, unmount the remote directory
