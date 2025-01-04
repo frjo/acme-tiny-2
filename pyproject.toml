@@ -36,15 +36,9 @@ dependencies = [
     "ruff>=0.7.0",
     "setuptools>=75.6.0",
 ]
-"test" = [
-    "coverage[toml]>=7.4.4",
-]
 
 [tool.uv]
-default-groups = ["dev", "test"]
-
-[tool.coverage.run]
-parallel = true
+default-groups = ["dev"]
 
 # https://github.com/charliermarsh/ruff#ruff
 [tool.ruff]
