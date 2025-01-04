@@ -141,7 +141,7 @@ class TestModule(unittest.TestCase):
 
         # should say the domain is already verified
         self.assertIn(
-            "Already verified: {0}, skipping...".format(DOMAIN),
+            "Already verified: {0}, skipping.".format(DOMAIN),
             log_string.decode("utf8"),
         )
 
