@@ -1,8 +1,8 @@
-import unittest
 import os
-import tempfile
 import shutil
 import subprocess
+import tempfile
+import unittest
 
 
 class TestInstall(unittest.TestCase):

@@ -54,8 +54,7 @@ parallel = true
 ignore = [
     "E501", # line too long
     "C901", # too complex
-    # 'F821',
-    # 'W605',
+    "F841", # local variable is assigned to but never used
 ]
 select = [
     'C', # flake8-comprehensions

@@ -1,20 +1,18 @@
+import json
 import os
 import sys
-import json
 import time
-from tempfile import NamedTemporaryFile, mkdtemp
 from subprocess import Popen
-try:
-    from urllib.request import urlopen # Python 3
-except ImportError: # pragma: no cover
-    from urllib2 import urlopen # Python 2
+from tempfile import NamedTemporaryFile, mkdtemp
+from urllib.request import urlopen
+
 
 def gen_keys(domain):
-    """ Generate test account and domain keys """
+    """Generate test account and domain keys"""
 
     # openssl config is system dependent
     openssl_cnf = None
-    for possible_cnf in ['/etc/pki/tls/openssl.cnf', '/etc/ssl/openssl.cnf']:
+    for possible_cnf in ["/etc/pki/tls/openssl.cnf", "/etc/ssl/openssl.cnf"]:
         if os.path.exists(possible_cnf):
             with open(possible_cnf) as f:
                 openssl_cnf = f.read().encode("utf8")
@@ -38,45 +36,126 @@ def gen_keys(domain):
     domain_conf.write("\n[SAN]\nsubjectAltName=DNS:{0}\n".format(domain).encode("utf8"))
     domain_conf.flush()
     domain_conf.seek(0)
-    Popen(["openssl", "req", "-new", "-sha256", "-key", domain_key.name,
-        "-subj", "/", "-reqexts", "SAN", "-config", domain_conf.name,
-        "-out", domain_csr.name]).wait()
+    Popen(
+        [
+            "openssl",
+            "req",
+            "-new",
+            "-sha256",
+            "-key",
+            domain_key.name,
+            "-subj",
+            "/",
+            "-reqexts",
+            "SAN",
+            "-config",
+            domain_conf.name,
+            "-out",
+            domain_csr.name,
+        ]
+    ).wait()
 
     # good domain via the Common Name
     cn_key = NamedTemporaryFile()
     cn_csr = NamedTemporaryFile()
-    Popen(["openssl", "req", "-newkey", "rsa:2048", "-nodes", "-keyout", cn_key.name,
-        "-subj", "/CN={0}".format(domain), "-out", cn_csr.name]).wait()
+    Popen(
+        [
+            "openssl",
+            "req",
+            "-newkey",
+            "rsa:2048",
+            "-nodes",
+            "-keyout",
+            cn_key.name,
+            "-subj",
+            "/CN={0}".format(domain),
+            "-out",
+            cn_csr.name,
+        ]
+    ).wait()
 
     # invalid domain csr
     invalid_csr = NamedTemporaryFile()
     invalid_conf = NamedTemporaryFile()
     invalid_conf.write(openssl_cnf)
-    invalid_conf.write(u"\n[SAN]\nsubjectAltName=DNS:\xC3\xA0\xC2\xB2\xC2\xA0_\xC3\xA0\xC2\xB2\xC2\xA0.com\n".encode("utf8"))
+    invalid_conf.write(
+        "\n[SAN]\nsubjectAltName=DNS:\xc3\xa0\xc2\xb2\xc2\xa0_\xc3\xa0\xc2\xb2\xc2\xa0.com\n".encode(
+            "utf8"
+        )
+    )
     invalid_conf.seek(0)
-    Popen(["openssl", "req", "-new", "-sha256", "-key", domain_key.name,
-        "-subj", "/", "-reqexts", "SAN", "-config", invalid_conf.name,
-        "-out", invalid_csr.name]).wait()
+    Popen(
+        [
+            "openssl",
+            "req",
+            "-new",
+            "-sha256",
+            "-key",
+            domain_key.name,
+            "-subj",
+            "/",
+            "-reqexts",
+            "SAN",
+            "-config",
+            invalid_conf.name,
+            "-out",
+            invalid_csr.name,
+        ]
+    ).wait()
 
     # nonexistent domain csr
     nonexistent_csr = NamedTemporaryFile()
     nonexistent_conf = NamedTemporaryFile()
     nonexistent_conf.write(openssl_cnf)
-    nonexistent_conf.write("\n[SAN]\nsubjectAltName=DNS:404.gethttpsforfree.com\n".encode("utf8"))
+    nonexistent_conf.write(
+        "\n[SAN]\nsubjectAltName=DNS:404.gethttpsforfree.com\n".encode("utf8")
+    )
     nonexistent_conf.seek(0)
-    Popen(["openssl", "req", "-new", "-sha256", "-key", domain_key.name,
-        "-subj", "/", "-reqexts", "SAN", "-config", nonexistent_conf.name,
-        "-out", nonexistent_csr.name]).wait()
+    Popen(
+        [
+            "openssl",
+            "req",
+            "-new",
+            "-sha256",
+            "-key",
+            domain_key.name,
+            "-subj",
+            "/",
+            "-reqexts",
+            "SAN",
+            "-config",
+            nonexistent_conf.name,
+            "-out",
+            nonexistent_csr.name,
+        ]
+    ).wait()
 
     # account-signed domain csr
     account_csr = NamedTemporaryFile()
     account_conf = NamedTemporaryFile()
     account_conf.write(openssl_cnf)
-    account_conf.write("\n[SAN]\nsubjectAltName=DNS:{0}\n".format(domain).encode("utf8"))
+    account_conf.write(
+        "\n[SAN]\nsubjectAltName=DNS:{0}\n".format(domain).encode("utf8")
+    )
     account_conf.seek(0)
-    Popen(["openssl", "req", "-new", "-sha256", "-key", account_key.name,
-        "-subj", "/", "-reqexts", "SAN", "-config", account_conf.name,
-        "-out", account_csr.name]).wait()
+    Popen(
+        [
+            "openssl",
+            "req",
+            "-new",
+            "-sha256",
+            "-key",
+            account_key.name,
+            "-subj",
+            "/",
+            "-reqexts",
+            "SAN",
+            "-config",
+            account_conf.name,
+            "-out",
+            account_csr.name,
+        ]
+    ).wait()
 
     return {
         "account_key": account_key,
@@ -89,6 +168,7 @@ def gen_keys(domain):
         "nonexistent_csr": nonexistent_csr,
         "account_csr": account_csr,
     }
+
 
 # Pebble server TLS certs
 # !!! DO NOT USE FOR ANYTHING EXCEPT TESTS !!!
@@ -180,18 +260,24 @@ F5OzP6TuNVIGpCKuPMLZTfcSCPV3ZUEizOVX
 -----END CERTIFICATE-----
 """
 
+
 class PebbleServerException(Exception):
     pass
 
+
 def setup_pebble(pebble_bin_path, bad_nonces=0):
-    """ Start a pebble server and challenge file server """
+    """Start a pebble server and challenge file server"""
 
     # make testing cert temp files
-    pebble_crt = NamedTemporaryFile(delete=False)  # keep until manually cleaned up in tearDown
+    pebble_crt = NamedTemporaryFile(
+        delete=False
+    )  # keep until manually cleaned up in tearDown
     pebble_crt.write(PEBBLE_CERT.encode("utf8"))
     pebble_crt.flush()
 
-    pebble_key = NamedTemporaryFile(delete=False)  # keep until manually cleaned up in tearDown
+    pebble_key = NamedTemporaryFile(
+        delete=False
+    )  # keep until manually cleaned up in tearDown
     pebble_key.write(PEBBLE_CERT_KEY.encode("utf8"))
     pebble_key.flush()
 
@@ -209,16 +295,18 @@ def setup_pebble(pebble_bin_path, bad_nonces=0):
         }
     }
     pebble_conf_file = NamedTemporaryFile()
-    pebble_conf_file.write(json.dumps(pebble_config, indent=4, sort_keys=True).encode("utf8"))
+    pebble_conf_file.write(
+        json.dumps(pebble_config, indent=4, sort_keys=True).encode("utf8")
+    )
     pebble_conf_file.flush()
 
     # start the pebble server
-    os.environ['PEBBLE_AUTHZREUSE'] = str(100)
-    os.environ['PEBBLE_WFE_NONCEREJECT'] = str(bad_nonces)
+    os.environ["PEBBLE_AUTHZREUSE"] = str(100)
+    os.environ["PEBBLE_WFE_NONCEREJECT"] = str(bad_nonces)
     pebble_server_proc = Popen([pebble_bin_path, "-config", pebble_conf_file.name])
 
     # trust the pebble server cert by default
-    os.environ['SSL_CERT_FILE'] = pebble_config['pebble']['certificate']
+    os.environ["SSL_CERT_FILE"] = pebble_config["pebble"]["certificate"]
 
     # wait until the pebble server responds
     wait_start = time.time()
@@ -231,17 +319,19 @@ def setup_pebble(pebble_bin_path, bad_nonces=0):
         except IOError:
             pass  # don't care about failed connections
         time.sleep(0.5)  # wait a bit and try again
-    else: # pragma: no cover
+    else:  # pragma: no cover
         pebble_server_proc.terminate()
         raise PebbleServerException("pebble failed to start :(")
 
     return pebble_server_proc, pebble_config
 
+
 class ChallengeFileServerException(Exception):
     pass
 
+
 def setup_local_fileserver(test_port, pebble_proc=None):
-    """ Start a local challenge file server """
+    """Start a local challenge file server"""
 
     # set challenge file temporary directory
     base_tempdir = mkdtemp()
@@ -249,11 +339,15 @@ def setup_local_fileserver(test_port, pebble_proc=None):
     os.makedirs(acme_tempdir)
 
     # start a fileserver for serving up challenges
-    local_fileserver_proc = Popen([
-        "python",
-        "-m", "SimpleHTTPServer" if sys.version_info.major == 2 else "http.server",
-        test_port,
-    ], cwd=base_tempdir)
+    local_fileserver_proc = Popen(
+        [
+            "python",
+            "-m",
+            "SimpleHTTPServer" if sys.version_info.major == 2 else "http.server",
+            test_port,
+        ],
+        cwd=base_tempdir,
+    )
 
     # make sure the fileserver is running
     testchallenge_text = "aaa".encode("utf8")
@@ -265,14 +359,16 @@ def setup_local_fileserver(test_port, pebble_proc=None):
     MAX_WAIT = 10  # 10 seconds
     while (time.time() - wait_start) < MAX_WAIT:
         try:
-            resp = urlopen("http://localhost:{}/.well-known/acme-challenge/a.txt".format(test_port))
+            resp = urlopen(
+                "http://localhost:{}/.well-known/acme-challenge/a.txt".format(test_port)
+            )
             if resp.getcode() == 200 and resp.read() == testchallenge_text:
                 os.remove(testchallenge_path)
                 break  # done!
         except IOError:
             pass  # don't care about failed connections
         time.sleep(0.5)  # wait a bit and try again
-    else: # pragma: no cover
+    else:  # pragma: no cover
         os.remove(testchallenge_path)
         local_fileserver_proc.terminate()
         if pebble_proc is not None:
@@ -280,4 +376,3 @@ def setup_local_fileserver(test_port, pebble_proc=None):
         raise ChallengeFileServerException("challenge file server failed to start :(")
 
     return local_fileserver_proc, base_tempdir, acme_tempdir
-
