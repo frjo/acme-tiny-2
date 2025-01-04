@@ -1,13 +1,20 @@
-# acme-tiny
+# acme-tiny-2
 
 [![Tests](https://github.com/diafygi/acme-tiny/actions/workflows/full-tests-with-coverage.yml/badge.svg)](https://github.com/diafygi/acme-tiny/actions/workflows/full-tests-with-coverage.yml)
 [![Coverage Status](https://coveralls.io/repos/github/diafygi/acme-tiny/badge.svg?branch=master)](https://coveralls.io/github/diafygi/acme-tiny?branch=master)
 
+**This is a fork of [diafygi/acme-tiny](https://github.com/diafygi/acme-tiny).**
+
+Changes in this form includes:
+
+* Code line limit increased to 250.
+* Requires python3.9+.
+
 This is a tiny, auditable script that you can throw on your server to issue
 and renew [Let's Encrypt](https://letsencrypt.org/) certificates. Since it has
 to be run on your server and have access to your private Let's Encrypt account
-key, I tried to make it as tiny as possible (currently less than 200 lines).
-The only prerequisites are python and openssl.
+key, I tried to make it as tiny as possible (currently less than 250 lines).
+The only prerequisites are python3 and openssl.
 
 **PLEASE READ THE SOURCE CODE! YOU MUST TRUST IT WITH YOUR PRIVATE ACCOUNT KEY!**
 
@@ -44,17 +51,17 @@ Let's Encrypt client.
 The private account key from the Let's Encrypt client is saved in the
 [JWK](https://tools.ietf.org/html/rfc7517) format. `acme-tiny` is using the PEM
 key format. To convert the key, you can use the tool
-[conversion script](https://gist.github.com/JonLundy/f25c99ee0770e19dc595) by JonLundy:
+[conversion script](https://gist.github.com/ivanov17/67a8acb1bfd0e7b5e3929aa9fbc379a5) by JonLundy/ivanov17:
 
 ```sh
 # Download the script
-wget -O - "https://gist.githubusercontent.com/JonLundy/f25c99ee0770e19dc595/raw/6035c1c8938fae85810de6aad1ecf6e2db663e26/conv.py" > conv.py
+wget -O - "https://gist.github.com/ivanov17/67a8acb1bfd0e7b5e3929aa9fbc379a5/raw/55f7d5552f00e776aee410dd29878fd846905c4f/jwk2asn1.py" > conv.py
 
 # Copy your private key to your working directory
 cp /etc/letsencrypt/accounts/acme-v01.api.letsencrypt.org/directory/<id>/private_key.json private_key.json
 
 # Create a DER encoded private key
-openssl asn1parse -noout -out private_key.der -genconf <(python2 conv.py private_key.json)
+openssl asn1parse -noout -out private_key.der -genconf <(python3 conv.py private_key.json)
 
 # Convert to PEM
 openssl rsa -in private_key.der -inform der > account.key
