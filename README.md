@@ -5,10 +5,12 @@
 
 **This is a fork of [diafygi/acme-tiny](https://github.com/diafygi/acme-tiny).**
 
-Changes in this form includes:
+Changes in this fork includes:
 
-* Code line limit increased to 250.
+* Code line limit increased to 250, more about readability than exact numbers.
 * Requires python3.9+.
+* Use ruff for linting and formatting with line-length set to 200.
+* Open to contributions, even if they add a few lines.
 
 This is a tiny, auditable script that you can throw on your server to issue
 and renew [Let's Encrypt](https://letsencrypt.org/) certificates. Since it has
