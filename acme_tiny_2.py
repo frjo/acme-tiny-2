@@ -193,7 +193,6 @@ def main(argv=None):
     args = parser.parse_args(argv)
     logging.basicConfig(level=logging.ERROR if args.quiet else logging.INFO)
     signed_crt = get_crt(args.account_key, args.csr, args.acme_dir, log=LOGGER, disable_check=args.disable_check, directory_url=args.directory_url, contact=args.contact, check_port=args.check_port)
-    sys.stdout.write(signed_crt)
 
     if args.outfile:
         LOGGER.info("Writing signed certificate to {outfile}".format(outfile=args.outfile))
