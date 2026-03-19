@@ -26,12 +26,11 @@ def get_crt(account_key, csr, acme_dir, log=LOGGER, disable_check=False, directo
     def _b64_encode_jose(b):
         return base64.urlsafe_b64encode(b).decode("utf8").replace("=", "")
 
-    def _run_external_cmd(cmd_list, stdin=None, cmd_input=None, err_msg="Command Line Error"):
-        proc = subprocess.Popen(cmd_list, stdin=stdin, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        out, err = proc.communicate(cmd_input)
-        if proc.returncode != 0:
-            raise IOError(f"{err_msg}\n{err.decode('utf8')}")
-        return out
+    def _run_external_cmd(cmd_list, cmd_input=None, err_msg="Command Line Error"):
+        result = subprocess.run(cmd_list, input=cmd_input, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.returncode != 0:
+            raise IOError(f"{err_msg}\n{result.stderr.decode('utf8')}")
+        return result.stdout
 
     def _do_request(url, data=None, err_msg="Error", depth=0):
         try:
@@ -60,7 +59,7 @@ def get_crt(account_key, csr, acme_dir, log=LOGGER, disable_check=False, directo
         protected.update({"jwk": jwk} if acct_headers is None else {"kid": acct_headers["Location"]})
         protected64 = _b64_encode_jose(json.dumps(protected).encode("utf8"))
         protected_input = f"{protected64}.{payload64}".encode("utf8")
-        out = _run_external_cmd(["openssl", "dgst", "-sha256", "-sign", account_key], stdin=subprocess.PIPE, cmd_input=protected_input, err_msg="OpenSSL Error")
+        out = _run_external_cmd(["openssl", "dgst", "-sha256", "-sign", account_key], cmd_input=protected_input, err_msg="OpenSSL Error")
         data = json.dumps({"protected": protected64, "payload": payload64, "signature": _b64_encode_jose(out)})
         try:
             resp_data, code, headers = _do_request(url, data=data.encode("utf8"), err_msg=err_msg, depth=depth)
