@@ -3,6 +3,7 @@ import logging
 import os
 import shutil
 import sys
+import tempfile
 import unittest
 from io import StringIO
 from subprocess import PIPE, Popen
@@ -165,6 +166,87 @@ class TestModule(unittest.TestCase):
             stdout=PIPE,
             stderr=PIPE,
         ).communicate()
+        out, err = Popen(["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(crt)
+        self.assertIn(self.ca_issued_string, out.decode("utf8"))
+
+    def test_success_outfile(self):
+        """Successfully issue a certificate and write it to a file via --outfile"""
+        with tempfile.NamedTemporaryFile(suffix=".crt", delete=False) as outfile:
+            outfile_path = outfile.name
+        try:
+            old_stdout = sys.stdout
+            sys.stdout = StringIO()
+            acme_tiny.main(
+                [
+                    "--account-key",
+                    self.KEYS["account_key"].name,
+                    "--csr",
+                    self.KEYS["domain_csr"].name,
+                    "--acme-dir",
+                    self.tempdir,
+                    "--directory-url",
+                    self.DIR_URL,
+                    "--check-port",
+                    self.check_port,
+                    "--outfile",
+                    outfile_path,
+                ]
+            )
+            sys.stdout = old_stdout
+            with open(outfile_path, "rb") as f:
+                crt = f.read()
+            out, err = Popen(["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(crt)
+            self.assertIn(self.ca_issued_string, out.decode("utf8"))
+        finally:
+            os.remove(outfile_path)
+
+    def test_quiet_mode(self):
+        """--quiet suppresses info log output; certificate is still issued"""
+        crt, err = Popen(
+            [
+                "python",
+                "acme_tiny_2.py",
+                "--account-key",
+                self.KEYS["account_key"].name,
+                "--csr",
+                self.KEYS["domain_csr"].name,
+                "--acme-dir",
+                self.tempdir,
+                "--directory-url",
+                self.DIR_URL,
+                "--check-port",
+                self.check_port,
+                "--quiet",
+            ],
+            stdout=PIPE,
+            stderr=PIPE,
+        ).communicate()
+        out, _ = Popen(["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(crt)
+        self.assertIn(self.ca_issued_string, out.decode("utf8"))
+        self.assertEqual(b"", err)
+
+    def test_disable_check(self):
+        """--disable-check skips the local reachability check for challenge files"""
+        old_stdout = sys.stdout
+        sys.stdout = StringIO()
+        acme_tiny.main(
+            [
+                "--account-key",
+                self.KEYS["account_key"].name,
+                "--csr",
+                self.KEYS["domain_csr"].name,
+                "--acme-dir",
+                self.tempdir,
+                "--directory-url",
+                self.DIR_URL,
+                "--check-port",
+                self.check_port,
+                "--disable-check",
+            ]
+        )
+        sys.stdout.seek(0)
+        crt = sys.stdout.read().encode("utf8")
+        sys.stdout = old_stdout
         out, err = Popen(["openssl", "x509", "-text", "-noout"], stdin=PIPE, stdout=PIPE, stderr=PIPE).communicate(crt)
         self.assertIn(self.ca_issued_string, out.decode("utf8"))
 
