@@ -2,7 +2,6 @@
 # Copyright Daniel Roesler, under MIT license, see LICENSE at github.com/diafygi/acme-tiny
 import argparse
 import base64
-import binascii
 import hashlib
 import json
 import logging
@@ -87,9 +86,9 @@ def get_crt(account_key, csr, acme_dir, log=LOGGER, disable_check=False, directo
     alg, jwk = (
         "RS256",
         {
-            "e": _b64_encode_jose(binascii.unhexlify(pub_exp.encode("utf-8"))),
+            "e": _b64_encode_jose(bytes.fromhex(pub_exp)),
             "kty": "RSA",
-            "n": _b64_encode_jose(binascii.unhexlify(re.sub(r"(\s|:)", "", pub_hex).encode("utf-8"))),
+            "n": _b64_encode_jose(bytes.fromhex(re.sub(r"(\s|:)", "", pub_hex))),
         },
     )
     accountkey_json = json.dumps(jwk, sort_keys=True, separators=(",", ":"))
