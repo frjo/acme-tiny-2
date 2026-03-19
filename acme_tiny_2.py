@@ -111,7 +111,7 @@ def get_crt(account_key, csr, acme_dir, log=LOGGER, disable_check=False, directo
     reg_payload = {"termsOfServiceAgreed": True} if contact is None else {"termsOfServiceAgreed": True, "contact": contact}
     account, code, acct_headers = _send_signed_request(directory["newAccount"], reg_payload, "Error registering")
     log.info("{0} Account ID: {1}".format("Registered." if code == 201 else "Already registered.", acct_headers["Location"]))
-    if contact is not None:
+    if contact is not None and code != 201:
         account, _, _ = _send_signed_request(acct_headers["Location"], {"contact": contact}, "Error updating contact details")
         log.info("Updated contact details:\n{0}".format("\n".join(account["contact"])))
 
