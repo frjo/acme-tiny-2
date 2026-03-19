@@ -22,7 +22,7 @@ LOGGER.setLevel(logging.INFO)
 
 
 def get_crt(account_key, csr, acme_dir, log=LOGGER, disable_check=False, directory_url=DEFAULT_DIRECTORY_URL, contact=None, check_port=None):
-    directory, acct_headers, alg, jwk = None, None, None, None  # global variables
+    directory, acct_headers, alg, jwk, nonce = None, None, None, None, None  # global variables
 
     def _b64_encode_jose(b):
         return base64.urlsafe_b64encode(b).decode("utf8").replace("=", "")
@@ -52,16 +52,21 @@ def get_crt(account_key, csr, acme_dir, log=LOGGER, disable_check=False, directo
         return resp_data, code, headers
 
     def _send_signed_request(url, payload, err_msg, depth=0):
+        nonlocal nonce
+        if nonce is None:
+            nonce = _do_request(directory["newNonce"])[2]["Replay-Nonce"]
+        current_nonce, nonce = nonce, None  # consume; will refill from response header
         payload64 = "" if payload is None else _b64_encode_jose(json.dumps(payload).encode("utf8"))
-        new_nonce = _do_request(directory["newNonce"])[2]["Replay-Nonce"]
-        protected = {"url": url, "alg": alg, "nonce": new_nonce}
+        protected = {"url": url, "alg": alg, "nonce": current_nonce}
         protected.update({"jwk": jwk} if acct_headers is None else {"kid": acct_headers["Location"]})
         protected64 = _b64_encode_jose(json.dumps(protected).encode("utf8"))
         protected_input = "{0}.{1}".format(protected64, payload64).encode("utf8")
         out = _run_external_cmd(["openssl", "dgst", "-sha256", "-sign", account_key], stdin=subprocess.PIPE, cmd_input=protected_input, err_msg="OpenSSL Error")
         data = json.dumps({"protected": protected64, "payload": payload64, "signature": _b64_encode_jose(out)})
         try:
-            return _do_request(url, data=data.encode("utf8"), err_msg=err_msg, depth=depth)
+            resp_data, code, headers = _do_request(url, data=data.encode("utf8"), err_msg=err_msg, depth=depth)
+            nonce = headers.get("Replay-Nonce")  # cache nonce from response for next call
+            return resp_data, code, headers
         except IndexError:  # retry bad nonces (they raise IndexError)
             return _send_signed_request(url, payload, err_msg, depth=(depth + 1))
 
