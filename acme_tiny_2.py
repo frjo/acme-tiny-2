@@ -78,7 +78,7 @@ def get_crt(account_key, csr, acme_dir, log=LOGGER, disable_check=False, directo
 
     log.info("Parsing account key to get public key.")
     out = _run_external_cmd(["openssl", "rsa", "-in", account_key, "-noout", "-text"], err_msg="OpenSSL Error")
-    pub_pattern = r"modulus:[\s]+?00:([a-f0-9\:\s]+?)\npublicExponent: ([0-9]+)"
+    pub_pattern = r"modulus:[\s]*(?:00:)?([a-f0-9\:\s]+?)\npublicExponent: ([0-9]+)"
     pub_hex, pub_exp = re.search(pub_pattern, out.decode("utf8"), re.MULTILINE | re.DOTALL).groups()
     pub_exp = f"{int(pub_exp):x}"
     pub_exp = f"0{pub_exp}" if len(pub_exp) % 2 else pub_exp
