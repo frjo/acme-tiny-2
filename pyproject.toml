@@ -27,6 +27,9 @@ dependencies = []
 [project.urls]
 Homepage = "https://github.com/frjo/acme-tiny-2"
 
+[project.scripts]
+acme-tiny-2 = "acme_tiny_2:main"
+
 dependencies = [
 ]
 
