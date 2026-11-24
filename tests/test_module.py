@@ -7,7 +7,6 @@ import tempfile
 import unittest
 from io import StringIO
 from subprocess import PIPE, Popen
-from urllib.request import Request, urlopen
 
 import acme_tiny_2 as acme_tiny
 
@@ -77,7 +76,7 @@ class TestModule(unittest.TestCase):
         test_dir = os.path.dirname(os.path.realpath(__file__))
         module_path = os.path.abspath(os.path.join(test_dir, os.pardir, "acme_tiny_2.py"))
         out, err = Popen(["wc", "-l", module_path], stdout=PIPE, stderr=PIPE).communicate()
-        num_lines = int(out.decode("utf8").split(" ", 1)[0])
+        num_lines = int(out.decode("utf8").split()[0])
         self.assertTrue(num_lines <= 250)
 
     def test_success_domain(self):
@@ -460,7 +459,10 @@ class TestModule(unittest.TestCase):
         cleaned_token = "____________etc_passwd"
 
         # man-in-the-middle ACME requests to modify the challenge token to something malicious
+        requested_urls = []
+
         def urlopenMITM(*args, **kwargs):
+            requested_urls.append(args[0].full_url)
             resp = urlopenOriginal(*args, **kwargs)
             resp._orig_read = resp.read()
             try:
@@ -504,10 +506,11 @@ class TestModule(unittest.TestCase):
         # should raise error that challenge didn't pass
         self.assertIn("Challenge did not pass for", result.args[0])
 
-        # challenge file actually saved as a cleaned version
-        resp = urlopen(Request("http://{0}:{1}/.well-known/acme-challenge/{2}".format(DOMAIN, self.check_port, cleaned_token)))
-        token_data = resp.read().decode("utf8")
-        self.assertIn(cleaned_token, token_data)
+        # challenge file was saved and self-checked under the cleaned name
+        self.assertIn("http://{0}:{1}/.well-known/acme-challenge/{2}".format(DOMAIN, self.check_port, cleaned_token), requested_urls)
+
+        # challenge file is cleaned up after the failure
+        self.assertFalse(os.path.exists(os.path.join(self.tempdir, cleaned_token)))
 
     def test_order_failure(self):
         """Raises error if order doesn't complete"""
