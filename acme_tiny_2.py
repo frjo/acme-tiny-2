@@ -21,7 +21,7 @@ LOGGER.setLevel(logging.INFO)
 
 
 def get_crt(account_key, csr, acme_dir, log=LOGGER, disable_check=False, directory_url=DEFAULT_DIRECTORY_URL, contact=None, check_port=None):
-    directory, acct_headers, alg, jwk, nonce = None, None, None, None, None  # global variables
+    directory, acct_headers, alg, jwk, nonce = None, None, None, None, None  # shared state for nested helpers
 
     def _b64_encode_jose(b):
         return base64.urlsafe_b64encode(b).decode("utf8").replace("=", "")
@@ -34,7 +34,7 @@ def get_crt(account_key, csr, acme_dir, log=LOGGER, disable_check=False, directo
 
     def _do_request(url, data=None, err_msg="Error", depth=0):
         try:
-            resp = urlopen(Request(url, data=data, headers={"Content-Type": "application/jose+json", "User-Agent": "acme-tiny"}))
+            resp = urlopen(Request(url, data=data, headers={"Content-Type": "application/jose+json", "User-Agent": "acme-tiny-2"}), timeout=60)
             resp_data, code, headers = resp.read().decode("utf8"), resp.getcode(), resp.headers
         except IOError as e:
             resp_data = e.read().decode("utf8") if hasattr(e, "read") else str(e)
@@ -180,9 +180,9 @@ def main(argv=None):
         description=textwrap.dedent("""\
             This script automates the process of getting a signed TLS certificate from Let's Encrypt using the ACME protocol.
             It will need to be run on your server and have access to your private account key, so PLEASE READ THROUGH IT!
-            It's only ~200 lines, so it won't take long.
+            It's only ~250 lines, so it won't take long.
 
-            Example Usage: python acme_tiny.py --account-key ./account.key --csr ./domain.csr --acme-dir /usr/share/nginx/html/.well-known/acme-challenge/ > signed_chain.crt
+            Example Usage: python acme_tiny_2.py --account-key ./account.key --csr ./domain.csr --acme-dir /usr/share/nginx/html/.well-known/acme-challenge/ > signed_chain.crt
             """),
     )
     parser.add_argument("--account-key", required=True, help="path to your Let's Encrypt account private key")
